@@ -5,8 +5,14 @@ The motivation for this is that the packages provided officially by debian are *
 We will set-up a qemu mips64 vritual machine and then use it to build an olsrd .deb package.
 
 
-Build a debian qemu-mips64 virtual machine
+Build a debian qemu-mipsel virtual machine
 ------------------------------------------
+
+Create a directory for qemu files
+    
+    mkdir mipsel
+    cd mipsel 
+
 
 Install qemu on your system, then create a disk::
 
@@ -14,38 +20,35 @@ Install qemu on your system, then create a disk::
 
 Download the debian mips kernel and the initrd that contains the debian installer (the debian version used by the edgerouter is wheezy)::
 
-    wget http://http.us.debian.org/debian/dists/wheezy/main/installer-mips/current/images/malta/netboot/vmlinux-3.2.0-4-4kc-malta
-    wget http://http.us.debian.org/debian/dists/wheezy/main/installer-mips/current/images/malta/netboot/initrd.gz
+    wget http://http.us.debian.org/debian/dists/wheezy/main/installer-mipsel/current/images/malta/netboot/vmlinux-3.2.0-4-4kc-malta
+    wget http://http.us.debian.org/debian/dists/wheezy/main/installer-mipsel/current/images/malta/netboot/initrd.gz
 
 Launch the virtual machine::
 
-    qemu-system-mips64 \
+    qemu-system-mipsel \
         -M malta \
-        -hda /tmp/disk.img \
-        -kernel wheezy/vmlinux-3.2.0-4-4kc-malta \
-        -initrd wheezy/initrd.gz \
+        -hda mipsel/disk.img \
+        -kernel mipsel/vmlinux-3.2.0-4-4kc-malta \
+        -initrd mipsel/initrd.gz \
         -append "console=ttyS0" \
         -nographic 
 
 And install debian using the installer.
 
 
-Launch the debian qemu-mips64 virtual machine
----------------------------------------------
-
 After finishing the installation, we need to copy the kernel and the initrd from the ``/boot/`` directory to outside the virtual machine.
+
+mv olsrd-0.9.0.3.tar.gz olsrd_0.9.0.3.orig.tar.gz
 
 To transfer them out you can use an ``scp`` through the network to another machine, for example.
 
 Note that the kernel and initrd files are different from the installation ones used above.
 
-Lauch the debian qemu-mips64 virtual machine::
+Lauch the debian qemu-mipsel virtual machine:
 
-    qemu-system-mips64 \
+    qemu-system-mipsel \
         -M malta \
-        -hda disk.img \
-        -kernel vmlinux-3.2.0-4-5kc-malta \
-        -initrd initrd.img-3.2.0-4-5kc-malta \
+        -hda mipsel/disk.img \
         -append "root=/dev/sda1 console=ttyS0" \
         -m 1024 \
         -nographic 
@@ -53,10 +56,10 @@ Lauch the debian qemu-mips64 virtual machine::
 
 Later, to exit the qemu VM you can use ctrl-a,x.
 
-Build the debian package from inside the debian qemu-mips64 virtual machine
+Build the debian package from inside the debian qemu-mipsel virtual machine
 ---------------------------------------------------------------------------
 
-After launching the debian qemu-mips64 virtual machine as described above, install some build dependencies::
+After launching the debian qemu-mipsel virtual machine as described above, install some build dependencies::
 
    apt-get install build-essential devscripts devhelper flex bison
   
